@@ -1,0 +1,165 @@
+
+<!--Objet: Algo Num project-->
+<!--Date: 14 juin 2019-->
+<!--Latino Nathan-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="text/html">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sudoku</title>
+</head>
+<body>
+<div id="app">
+	<span>Samedi 30 mars 2019</span>
+    <h1>Algorithme numérique - sudoku</h1>
+	<b>Nathan Latino</b>
+
+
+	<!--<div>-->
+
+
+		<!--<button @click="stopNextMoveAuto">stop</button>-->
+		<!--<button @click="resetBoard">reset</button>-->
+		<!--<button @click="setRandomBoard">random</button>-->
+	<!--</div>-->
+	<div>
+		<button v-on:click="clean">Clean</button>
+		<button v-on:click="solve()">fast solve</button>
+		<button v-on:click="random()">random</button>
+		<br><br>
+		<button v-on:click="solveByStep()">solve by step</button>
+		<label>speed(ms) : </label>
+		<input v-model="speed" type="number" value="1" min="1" step="5" max="1000" />
+		<input v-model="speed" type="range" min="1" max="1000" value="1" step="5" class="slider">
+
+		<br><br>
+		<label>Size : </label>
+		<input v-model="square" id=square style="width: 2em;" type="number" value="3" min="2" step="1" max="4" />
+		<label>Difficulty : </label>
+		<input v-model="difficulty" id=difficulty style="width: 2em;" type="number" value="5" min="1" step="1" max="5" />
+		<label>Creator mode : </label>
+		<input v-model="creator" type="checkbox" id="checkbox" >
+		<br><br>
+		<button v-on:click="load()">load sudoku</button>
+		<input id="idFile" type="file" />
+        <br><br>
+	</div>
+	<div>
+		<canvas style="	display: block; margin-left: auto; margin-right: auto;" id="sudoku" width="1000" height="1000">Your browser doesn't support canvas!</canvas>
+	</div>
+
+    <div>
+		<h1>Contexte</h1>
+		<p>
+			Ce projet personnel consiste à développer un programme qui permet de visualiser la résolution,
+			génération et le traitement de l'utilisateur sur un sudoku. Il permet de voir comment se traite
+			un algorithme de backtracking.
+		</p>
+		<h2>Développement</h2>
+		<p>
+			Pour ce projet, il a fallut créé un algorithme qui permet  résoudre des sudokus de n'importe quelle taille.
+			J'ai utiliser le backtracking qui est utiliser pour ce type de problématique. Après que la résolution de cet
+			algorithme finit j'ai pu commencé à générer des sudoku de n'importe quelle taille qui ont une solution.
+			Plusieurs valeurs sont mises aléatoirement dans le tableau et ensuite résolut par l'algorithmes. Après l'avoir
+			résolu, il supprime un nombre de case qui est définit par la difficulté.
+			La création d'un mode où l'on peut montrer comment le programme résout étape par étape.
+
+			Un mode créateur est ajouté pour pouvoir modifier la base du canevas du sudoku (donc les cases bloqué d'un
+			sudoku). On peut récupérer des fichiers json pour pouvoir affichier le sudoku et le résoudre par la suite
+			(voir le format sudoku/sudoku.json).
+		</p>
+		<h2>Conclusion</h2>
+		<p>
+			L'amélioration de l'algorithme de base backtracking est très intéressant et permet de force beaucoup de valeur.
+			On peut voir lors de la création d'un sudoku, il peut parfois prendre un plus de temps (surtout pour le 16x16)
+			qui n'est pas forcement négligable. J'ai légèrement modifier l'algorithme pour réduire ce temps.
+		</p>
+
+	</div>
+</div>
+
+<script src="AN2019_Nathan_Latino.js"></script>
+<script src="static/vue.js"></script>
+
+<script>
+	// Gestion du DOM:
+	let app = new Vue({
+		el: '#app',
+		data: () => ({
+			square: 3,
+			difficulty: 5,
+			creator: false,
+			speed: 1,
+		}),
+		computed: {
+
+		},
+		watch: {
+		    square(value) {this.resize();},
+			difficulty(value) {this.changeDifficulty();},
+			creator(value) {this.changeCreatorMode(value);},
+			speed(value){this.changeValue();}
+		},
+		methods: {
+		    changeValue(){
+		        data.time = this.speed;
+			},
+            changeCreatorMode(value){
+                this.creator = value;
+				data.creator = this.creator;
+			},
+		    changeDifficulty(){
+				data.difficulty = this.difficulty;
+			},
+		    resize(){
+                clearInterval(data.resolveTimer);
+		        data.size = this.square*this.square;
+		        data.sizeSquare.w = (data.sizeGrid.w - data.size - Math.sqrt(data.size)*7) / data.size;
+                data.sizeSquare.h = (data.sizeGrid.w - data.size - Math.sqrt(data.size)*7) / data.size;
+                data.cnsData = [];
+                data.sizeFont = 20 * 16 / data.size;
+                data.selectedRect = null;
+		        this.clean();
+			},
+			solve(){
+		        data.result = arrayClone(data.base);
+                clearInterval(data.resolveTimer);
+		        if(solver(data.result, data.size)){
+		            console.log("draw");
+                    redrawSudoku(data.result);
+				} else {
+                    redrawSudoku(data.base);
+				}
+			},
+			solveByStep(){
+                clearInterval(data.resolveTimer);
+				solveTime(data.time);
+			},
+			clean(){
+                clearInterval(data.resolveTimer);
+				emptyTab(data.size, data.base);
+		        emptyTab(data.size, data.result);
+		        redrawSudoku(data.base);
+			},
+			random() {
+                clearInterval(data.resolveTimer);
+		        randomSudoku();
+			},
+			load() {
+                let f = document.getElementById('idFile').files[0];
+                if(f !== undefined){
+					loadSudoku(f);
+					redrawSudoku(data.base);
+				}
+			}
+		},
+		mounted() {
+
+		}
+	});
+</script>
+
+</body>
+</html>
